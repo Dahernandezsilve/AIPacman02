@@ -1,3 +1,2 @@
-class: "Q6PartialCreditQuestion"
-max_points: "3"
-depends: "q3"
+max_points: "6"
+class: "PartialCreditQuestion"
