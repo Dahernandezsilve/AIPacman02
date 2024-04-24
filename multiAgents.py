@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -14,9 +14,11 @@
 
 from util import manhattanDistance
 from game import Directions
-import random, util
+import random
+import util
 
 from game import Agent
+
 
 class ReflexAgent(Agent):
     """
@@ -27,7 +29,6 @@ class ReflexAgent(Agent):
     it in any way you see fit, so long as you don't touch our method
     headers.
     """
-
 
     def getAction(self, gameState):
         """
@@ -42,10 +43,13 @@ class ReflexAgent(Agent):
         legalMoves = gameState.getLegalActions()
 
         # Choose one of the best actions
-        scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
+        scores = [self.evaluationFunction(
+            gameState, action) for action in legalMoves]
         bestScore = max(scores)
-        bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
-        chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+        bestIndices = [index for index in range(
+            len(scores)) if scores[index] == bestScore]
+        # Pick randomly among the best
+        chosenIndex = random.choice(bestIndices)
 
         "Add more of your code here if you want to"
 
@@ -71,10 +75,12 @@ class ReflexAgent(Agent):
         newPos = childGameState.getPacmanPosition()
         newFood = childGameState.getFood()
         newGhostStates = childGameState.getGhostStates()
-        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+        newScaredTimes = [
+            ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
         return childGameState.getScore()
+
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -85,6 +91,7 @@ def scoreEvaluationFunction(currentGameState):
     (not reflex agents).
     """
     return currentGameState.getScore()
+
 
 class MultiAgentSearchAgent(Agent):
     """
@@ -101,10 +108,11 @@ class MultiAgentSearchAgent(Agent):
     is another abstract class.
     """
 
-    def __init__(self, evalFn = 'scoreEvaluationFunction', depth = '2'):
-        self.index = 0 # Pacman is always agent index 0
+    def __init__(self, evalFn='scoreEvaluationFunction', depth='2'):
+        self.index = 0  # Pacman is always agent index 0
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
+
 
 class MinimaxAgent(MultiAgentSearchAgent):
     """
@@ -137,6 +145,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
 
+
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
@@ -145,9 +154,69 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     def getAction(self, gameState):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
+
+        References:
+            - https://www.researchgate.net/figure/The-Alpha-Beta-pseudo-code-from-Russell-and-Norvigs-AI-textbook-Russell-and-Norvig_fig1_329715244
+
+        Questions:
+            - why this implementation uses depth
+            - why this implementation uses .getLegalActions(0) and .getLegalActions(agentIndex) in the minValue function
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def maxValue(state, alpha, beta, depth):
+            """
+            Returns the minimax action using self.depth and self.evaluationFunction
+            """
+            if depth == 0 or state.isWin() or state.isLose():
+                return self.utility(state)
+
+            v = float('-inf')
+
+            # Get legal action of the PacMan (agentIndex=0)
+            for action in state.getLegalActions():
+                v = max(v, minValue(self.result(
+                    state, action, 0), alpha, beta, depth, 1))
+                if v >= beta:
+                    return v
+                alpha = max(alpha, v)
+            return v
+
+        def minValue(state, alpha, beta, depth, agentIndex):
+            if state.isWin() or state.isLose():
+                return self.utility(state)
+
+            v = float('inf')
+            for action in state.getLegalActions(agentIndex):
+                if agentIndex == state.getNumAgents() - 1:
+                    v = min(v, maxValue(self.result(
+                        state, action, agentIndex), alpha, beta, depth - 1))
+                else:
+                    v = min(v, minValue(self.result(state, action, agentIndex),
+                            alpha, beta, depth, agentIndex + 1))
+                if v <= alpha:
+                    return v
+                beta = min(beta, v)
+            return v
+
+        alpha = float('-inf')
+        beta = float('inf')
+        bestAction = None
+        bestValue = float('-inf')
+
+        for action in gameState.getLegalActions(0):
+            value = minValue(self.result(gameState, action, 0),
+                             alpha, beta, self.depth, 1)
+            if value > bestValue:
+                bestValue = value
+                bestAction = action
+                alpha = max(alpha, bestValue)
+        return bestAction
+
+    def utility(self, state):
+        return self.evaluationFunction(state)
+
+    def result(self, state, action, agentIndex):
+        return state.getNextState(agentIndex, action)
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -164,6 +233,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
 
+
 def betterEvaluationFunction(currentGameState):
     """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
@@ -172,7 +242,8 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()    
+    util.raiseNotDefined()
+
 
 # Abbreviation
 better = betterEvaluationFunction
