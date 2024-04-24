@@ -175,7 +175,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             for action in state.getLegalActions():
                 v = max(v, minValue(self.result(
                     state, action, 0), alpha, beta, depth, 1))
-                if v >= beta:
+                if v > beta:
                     return v
                 alpha = max(alpha, v)
             return v
@@ -192,7 +192,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 else:
                     v = min(v, minValue(self.result(state, action, agentIndex),
                             alpha, beta, depth, agentIndex + 1))
-                if v <= alpha:
+                if v < alpha:
                     return v
                 beta = min(beta, v)
             return v
