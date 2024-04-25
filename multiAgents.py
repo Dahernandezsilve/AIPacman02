@@ -117,6 +117,8 @@ class MultiAgentSearchAgent(Agent):
 class MinimaxAgent(MultiAgentSearchAgent):
     """
     Your minimax agent (question 2)
+
+    @References: https://www.researchgate.net/figure/MiniMax-Algorithm-Pseduo-Code-In-Fig-3-there-is-a-pseudo-code-for-NegaMax-algorithm_fig2_262672371
     """
 
     def getAction(self, gameState):
@@ -142,8 +144,56 @@ class MinimaxAgent(MultiAgentSearchAgent):
         gameState.isLose():
         Returns whether or not the game state is a losing state
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def minimax(agentIndex, depth, gameState):
+            if gameState.isWin() or gameState.isLose() or depth == self.depth:
+                return self.evaluationFunction(gameState)
+
+            # Pacman's turn (maximizing player)
+            if agentIndex == 0:
+                return maxMove(agentIndex, depth, gameState)
+            # Ghosts' turn (minimizing players)
+            else:
+                return minMove(agentIndex, depth, gameState)
+
+        def maxMove(agentIndex, depth, gameState):
+            maxEval = float("-inf")
+            bestAction = None
+
+            newDepth = depth if agentIndex < gameState.getNumAgents() - 1 else depth + 1
+
+            for action in gameState.getLegalActions(agentIndex):
+                successorGameState = gameState.getNextState(agentIndex, action)
+                eval = minimax(1, newDepth, successorGameState)
+
+                if eval > maxEval:
+                    maxEval = eval
+                    bestAction = action
+
+            if depth == 0:
+                return bestAction
+            else:
+                return maxEval
+
+        def minMove(agentIndex, depth, gameState):
+            minEval = float("inf")
+            # Get the next agent index using modulo operator
+            newAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
+            # Explanation: If the current agent is the last agent, the next agent will be the first agent
+
+            # Increase the depth if all agents have taken their turns
+            newDepth = depth if newAgentIndex > 0 else depth + 1
+
+            for action in gameState.getLegalActions(agentIndex):
+                successorGameState = gameState.getNextState(agentIndex, action)
+                eval = minimax(newAgentIndex, newDepth, successorGameState)
+                if eval < minEval:
+                    minEval = eval
+
+            return minEval
+
+        # Start the minimax process
+        return minimax(0, 0, gameState)
+
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -216,6 +266,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
     def result(self, state, action, agentIndex):
         return state.getNextState(agentIndex, action)
+
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
