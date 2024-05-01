@@ -282,8 +282,69 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
+        action, score = self.get_value(gameState, 0, 0)
 
+        return action
+
+    def get_value(self, gameState, index, depth):
+        
+        if gameState.isWin() or gameState.isLose() or depth == self.depth:
+            return "", self.evaluationFunction(gameState)
+
+        # Max-agent: Pacman has index = 0
+        if index == 0:
+            return self.max_value(gameState, index, depth)
+
+        # Expectation-agent: Ghost has index > 0
+        else:
+            return self.expected_value(gameState, index, depth)
+        
+    def max_value(self, gameState, index, depth):
+        
+        legalMoves = gameState.getLegalActions(index)
+        max_value = float("-inf")
+        max_action = ""
+
+        for action in legalMoves:
+            next_state = gameState.getNextState(index, action)
+            next_state_index = index + 1
+            next_state_depth = depth
+
+            if next_state_index == gameState.getNumAgents():
+                next_state_index = 0
+                next_state_depth += 1
+
+            current_action, current_value = self.get_value(next_state, next_state_index, next_state_depth)
+
+            if current_value > max_value:
+                max_value = current_value
+                max_action = action
+
+        return max_action, max_value
+    
+    def expected_value(self, gameState, index, depth):
+        
+        legalMoves = gameState.getLegalActions(index)
+        expected_value = 0
+        expected_action = ""
+
+        next_state_probability = 1.0 / len(legalMoves)
+
+        for action in legalMoves:
+            next_state = gameState.getNextState(index, action)
+            next_state_index = index + 1
+            next_state_depth = depth
+
+            if next_state_index == gameState.getNumAgents():
+                next_state_index = 0
+                next_state_depth += 1
+
+            current_action, current_value = self.get_value(next_state, next_state_index, next_state_depth)
+
+            expected_value += next_state_probability * current_value
+
+        return expected_action, expected_value
 
 def betterEvaluationFunction(currentGameState):
     """
