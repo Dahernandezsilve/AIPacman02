@@ -388,7 +388,7 @@ class PacmanRules:
                 state.data.scoreChange += 500
                 state.data._win = True
         # Eat capsule
-        if(position in state.getCapsules()):
+        if (position in state.getCapsules()):
             state.data.capsules.remove(position)
             state.data._capsuleEaten = position
             # Reset all ghosts' scared timers
@@ -662,7 +662,7 @@ def replayGame(layout, actions, display):
     display.initialize(state.data)
 
     for action in actions:
-            # Execute the action
+        # Execute the action
         state = state.getNextState(*action)
         # Change the display
         display.update(state.data)
@@ -682,7 +682,7 @@ def runGames(layout, pacman, ghosts, display, numGames, record, numTraining=0, c
     for i in range(numGames):
         beQuiet = i < numTraining
         if beQuiet:
-                # Suppress output and graphics
+            # Suppress output and graphics
             import textDisplay
             gameDisplay = textDisplay.NullGraphics()
             rules.quiet = True
@@ -735,11 +735,18 @@ if __name__ == '__main__':
     games = runGames(**args)
 
     # Almacenar los puntajes y resultados en el archivo de registro
-    with open('scores.txt', 'a') as f:
+    import csv
+
+    with open('scores.txt', 'a') as f_txt, open('scores.csv', 'a', newline='') as f_csv:
+        writer = csv.writer(f_csv)
+        # write the header to the CSV file
+
         for game in games:
             score = game.state.getScore()
             result = "win" if game.state.isWin() else "lose"
-            f.write(f"Puntaje: {score}, Resultado: {result}\n")
+            # write to the TXT file
+            f_txt.write(f"Puntaje: {score}, Resultado: {result}\n")
+            writer.writerow([score, result])  # write to the CSV file
 
     # import cProfile
     # cProfile.run("runGames( **args )")
