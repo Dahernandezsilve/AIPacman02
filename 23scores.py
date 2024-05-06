@@ -58,18 +58,20 @@ def collect_results(iterations=20, configurations=None, path_to='pacman_results.
 
 configurations = [
     ('AlphaBetaAgent', 1, 'smallClassic', 1),
-    ('AlphaBetaAgent', 1, 'mediumClassic', 1),
+    ('AlphaBetaAgent', 1, 'smallClassic', 2),
+    ('AlphaBetaAgent', 2, 'smallClassic', 1),
     ('AlphaBetaAgent', 2, 'smallClassic', 2),
-    ('AlphaBetaAgent', 2, 'mediumClassic', 2),
     ('AlphaBetaAgent', 3, 'smallClassic', 1),
+    ('AlphaBetaAgent', 3, 'smallClassic', 2),
     ('AlphaBetaAgent', 3, 'mediumClassic', 2),
     ('MinimaxAgent', 1, 'smallClassic', 1),
-    ('MinimaxAgent', 1, 'mediumClassic', 2),
+    ('MinimaxAgent', 1, 'smallClassic', 2),
     ('MinimaxAgent', 2, 'smallClassic', 1),
-    ('MinimaxAgent', 2, 'mediumClassic', 2),
+    ('MinimaxAgent', 2, 'smallClassic', 2),
     ('MinimaxAgent', 3, 'smallClassic', 1),
+    ('MinimaxAgent', 3, 'smallClassic', 2),
     ('MinimaxAgent', 3, 'mediumClassic', 2),
 ]
 
-collect_results(iterations=10, configurations=configurations,
+collect_results(iterations=5, configurations=configurations,
                 path_to='pacman_results.csv')
