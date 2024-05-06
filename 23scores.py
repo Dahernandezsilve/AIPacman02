@@ -57,6 +57,7 @@ def collect_results(iterations=20, configurations=None, path_to='pacman_results.
 # Run the test collection
 
 configurations = [
+    # Agent, Depth, Layout, Ghosts
     ('AlphaBetaAgent', 1, 'smallClassic', 1),
     ('AlphaBetaAgent', 1, 'smallClassic', 2),
     ('AlphaBetaAgent', 2, 'smallClassic', 1),
