@@ -55,6 +55,7 @@ class ReflexAgent(Agent):
 
         return legalMoves[chosenIndex]
 
+
     def evaluationFunction(self, currentGameState, action):
         """
         Design a better evaluation function here.
@@ -70,18 +71,62 @@ class ReflexAgent(Agent):
         Print out these variables to see what you're getting, then combine them
         to create a masterful evaluation function.
         """
+        CONST = 0.001
         # Useful information you can extract from a GameState (pacman.py)
         childGameState = currentGameState.getPacmanNextState(action)
         newPos = childGameState.getPacmanPosition()
         newFood = childGameState.getFood()
         newGhostStates = childGameState.getGhostStates()
-        newScaredTimes = [
-            ghostState.scaredTimer for ghostState in newGhostStates]
+        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+        newCapsules = childGameState.getCapsules()
 
         "*** YOUR CODE HERE ***"
-        return childGameState.getScore()
+        # Precalcular distancias de Manhattan
+        foodList = newFood.asList()
+        foodDistances = [manhattanDistance(newPos, foodPos) for foodPos in foodList]
+        ghostDistances = [manhattanDistance(newPos, ghostState.getPosition()) for ghostState in newGhostStates if ghostState.scaredTimer == 0]
+        scaredGhostDistances = [manhattanDistance(newPos, ghostState.getPosition()) for ghostState in newGhostStates if ghostState.scaredTimer > 0]
+        capsuleDistances = [manhattanDistance(newPos, capsulePos) for capsulePos in newCapsules]
 
+        # Calcular distancias mínimas
+        if not foodList:
+            distToClosestFood = 0
+        else:
+            distToClosestFood = min(foodDistances)
 
+        if not ghostDistances:
+            distToClosestGhost = float("inf")
+        else:
+            distToClosestGhost = min(ghostDistances)
+
+        if not any(newScaredTimes):
+            scaredGhostTimer = 0
+        else:
+            scaredGhostTimer = sum(newScaredTimes)
+
+        if not capsuleDistances:
+            distToClosestCapsule = 0
+        else:
+            distToClosestCapsule = min(capsuleDistances)
+
+        if not scaredGhostDistances:
+            distToClosestScaredGhost = float("inf")
+        else:
+            distToClosestScaredGhost = min(scaredGhostDistances)
+
+        # Calcular puntaje
+        score = childGameState.getScore()
+        score += 20 / (distToClosestFood + CONST) - 10 * len(foodList)  # Acercarse a la comida y favorecer menos puntos de comida restantes
+        if distToClosestGhost < 2:
+            score -= 2000  # Huir del fantasma cercano
+        else:
+            score -= 20 / (distToClosestGhost + CONST)  # Alejarse de los fantasmas no asustados
+        score += scaredGhostTimer * 10  # Comer fantasmas asustados
+        score += 10 / (distToClosestCapsule + CONST)  # Acercarse a las cápsulas
+        score += 20 / (distToClosestScaredGhost + CONST)  # Acercarse a los fantasmas asustados
+
+        return score
+    
 def scoreEvaluationFunction(currentGameState):
     """
     This default evaluation function just returns the score of the state.

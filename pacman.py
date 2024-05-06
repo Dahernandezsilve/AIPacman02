@@ -731,7 +731,15 @@ if __name__ == '__main__':
     > python pacman.py --help
     """
     args = readCommand(sys.argv[1:])  # Get game components based on input
-    runGames(**args)
+    # Ejecutar los juegos
+    games = runGames(**args)
+
+    # Almacenar los puntajes y resultados en el archivo de registro
+    with open('scores.txt', 'a') as f:
+        for game in games:
+            score = game.state.getScore()
+            result = "win" if game.state.isWin() else "lose"
+            f.write(f"Puntaje: {score}, Resultado: {result}\n")
 
     # import cProfile
     # cProfile.run("runGames( **args )")
